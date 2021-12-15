@@ -1,4 +1,14 @@
-### Change python version (HEAD -> main)
+### Add Earth (HEAD -> main)
+>Wed, 15 Dec 2021 10:59:50 +0100
+
+>Author: Jean-Christophe Malapert (jean-christophe.malapert@cnes.fr)
+
+>Commiter: Jean-Christophe Malapert (jean-christophe.malapert@cnes.fr)
+
+
+
+
+### Change python version (origin/main)
 >Wed, 15 Dec 2021 03:16:06 +0100
 
 >Author: Jean-Christophe Malapert (jean-christophe.malapert@cnes.fr)
@@ -8,7 +18,7 @@
 
 
 
-### Update requirements.txt (origin/main)
+### Update requirements.txt
 >Wed, 15 Dec 2021 02:29:47 +0100
 
 >Author: Jean-Christophe Malapert (jean-christophe.malapert@cnes.fr)

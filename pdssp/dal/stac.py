@@ -46,7 +46,7 @@ class StacItem:
             return
         tags = row["hashtags"]
         for tag in tags:
-            (key, value) = tag.split(":")
+            (key, value) = tag.split(":", maxsplit=1)
             row[key] = value if key not in row else row[key] + "," + value
 
     def _parse_assets(self, row: gpd.GeoSeries) -> None:

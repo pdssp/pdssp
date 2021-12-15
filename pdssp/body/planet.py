@@ -30,7 +30,8 @@ class IPlanet:
 
 class PlanetEnum(Enum):
 
-    MARS = "Mars"
+    MARS = "MARS"
+    EARTH = "EARTH"
 
 
 class PlanetFactory:
@@ -44,8 +45,10 @@ class PlanetFactory:
             planet_name = "Mars"
 
         planet: IPlanet
-        if planet_name == "Mars":
+        if planet_name.upper() == PlanetEnum.MARS.value:
             planet = Mars(gdf)
+        elif planet_name.upper() == PlanetEnum.EARTH.value:
+            planet = Earth(gdf)
         else:
             raise NotImplementedError("Only Mars is implemented as planet")
 
@@ -58,8 +61,21 @@ class MarsVisu(Mizar):
         wms = WMSLayer(
             name="wms_mars",
             format="png",
-            url="http://idoc-wmsmars.ias.u-psud.fr/cgi-bin/mapserv?map=/home/cnes/mars/mars.map",
+            url="https://idoc-wmsmars.ias.u-psud.fr/cgi-bin/mapserv?map=/home/cnes/mars/mars.map",
             layers="viking",
+            background=True,
+        )
+        self.add_layer(wms)
+
+
+class EarthVisu(Mizar):
+    def __init__(self):
+        super().__init__()
+        wms = WMSLayer(
+            name="wms_mars",
+            format="png",
+            url="https://regards-pp.cnes.fr/api/v1/hysope/?map=/etc/mapserver/bluemarble.map",
+            layers="BlueMarble",
             background=True,
         )
         self.add_layer(wms)
@@ -67,7 +83,7 @@ class MarsVisu(Mizar):
 
 class Mars(IPlanet):
 
-    NAME = "Mars"
+    NAME = PlanetEnum.MARS.value
 
     def __init__(self, data: gpd.GeoDataFrame):
         self.__data: gpd.GeoDataFrame = data
@@ -144,6 +160,94 @@ class Mars(IPlanet):
 
     def remove_highlight(self, mars_visu: MarsVisu):
         mars_visu.highlight(None)
+
+    @property
+    def data(self) -> gpd.GeoDataFrame:
+        return self.__data
+
+
+class Earth(IPlanet):
+
+    NAME = PlanetEnum.EARTH.value
+
+    def __init__(self, data: gpd.GeoDataFrame):
+        self.__data: gpd.GeoDataFrame = data
+
+    def _add_geojson(
+        self,
+        earth_visu: EarthVisu,
+        data: gpd.GeoDataFrame,
+        color: List[float] = [0, 190, 100, 1],
+    ) -> None:
+        observations = GeoJSONLayer(
+            name="data",
+            data=json.loads(data.to_json()),
+            style={"strokeColor": color, "opacity": 1},
+        )
+        earth_visu.add_layer(observations, center=True)
+
+    def describe(self) -> str:
+        return self.data.describe(include="all")
+
+    def query(
+        self,
+        query: str,
+        earth_visu: EarthVisu = None,
+        color: List[float] = [0, 190, 100, 1],
+    ) -> gpd.GeoDataFrame:
+        result: gpd.GeoDataFrame = self.data.query(query)
+        if earth_visu is not None:
+            self._add_geojson(earth_visu, result, color)
+        return result
+
+    def histogram(
+        self, color="k", alpha=0.5, bins=50, figsize=(10, 10)
+    ) -> None:
+        numerics = ["int16", "int32", "int64", "float16", "float32", "float64"]
+        newdf = self.data.select_dtypes(include=numerics)
+        newdf.hist(color, alpha, bins, figsize)
+
+    def visu3D(self) -> EarthVisu:
+        return EarthVisu()
+
+    def has_preview(self):
+        pass
+
+    def show_image(self):
+        pass
+
+    def show_dataset_visu3D(
+        self, earth_visu: EarthVisu, color: List[float] = [0, 190, 100, 1]
+    ) -> None:
+        self._add_geojson(earth_visu, self.data, color)
+
+    def remove_dataset_visu3D(self, earth_visu: EarthVisu) -> None:
+        earth_visu.remove_layer("data")
+
+    def columns(self) -> List[str]:
+        return list(self.data.columns)
+
+    def highlight(
+        self,
+        earth_visu: EarthVisu,
+        index: Union[List, int],
+        color=[1, 0, 0, 1],
+    ):
+        selection: gpd.GeoDataFrame
+        if isinstance(index, int):
+            selection = self.data.iloc[index : index + 1]
+        else:
+            selection = self.data.iloc[index]
+        earth_visu.highlight(json.loads(selection.to_json()), color)
+
+    def highlight_by_index(
+        self, earth_visu: EarthVisu, index: pd.Index, color=[1, 0, 0, 1]
+    ):
+        selection: gpd.GeoDataFrame = self.data.loc[index]
+        earth_visu.highlight(json.loads(selection.to_json()), color)
+
+    def remove_highlight(self, earth_visu: EarthVisu):
+        earth_visu.highlight(None)
 
     @property
     def data(self) -> gpd.GeoDataFrame:
