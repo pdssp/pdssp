@@ -81,6 +81,7 @@ class StacItem:
         for link in links:
             if link["rel"] == "heatmap":
                 heatmap_url = link["href"]
+                break
         return heatmap_url
 
     def _go_to_next_page(

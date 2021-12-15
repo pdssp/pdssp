@@ -154,7 +154,7 @@ class Mars(IPlanet):
             base_url = (
                 f"{url_parse.scheme}://{url_parse.netloc}/{url_parse.path}"
             )
-            layer_name = parse_qs(url_parse.query)["layers"][0]
+            layer_name = parse_qs(url_parse.query)["LAYERS"][0]
             mars.add_layer_wms(base_url, layer_name)
         return mars
 

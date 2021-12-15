@@ -33,7 +33,6 @@ from ._version import __version__
 from .custom_logging import LogRecord
 from .custom_logging import UtilsLogs
 
-
 logging.getLogger(__name__).addHandler(NullHandler())
 
 UtilsLogs.add_logging_level("TRACE", 15)
