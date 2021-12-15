@@ -1,0 +1,2 @@
+python3 -m venv pdssp-env && export PYTHONPATH=. && export PATH=/home/malapert/Dev/pdssp/pdssp-env/bin:/home/malapert/Dev/pdssp/pdssp-env/bin:/home/malapert/Dev/pdssp/pdssp-env/bin:/home/malapert/.deta/bin:/home/malapert/anaconda3/condabin:/usr/lib/jvm/java-8-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/lib/jvm/java-8-openjdk-amd64/bin
+source "/home/malapert/Dev/pdssp/pdssp-env/bin/activate"
