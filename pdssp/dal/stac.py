@@ -11,6 +11,7 @@ import geopandas as gpd
 import pandas as pd
 import requests
 import swifter
+from requests.models import PreparedRequest
 
 JSON = Union[None, bool, str, float, int, List["JSON"], Dict[str, "JSON"]]
 
@@ -27,9 +28,18 @@ class StacEnum(Enum):
 class StacItem:
     def __init__(self, url: str, max_records: int = None):
         self.__url: str = url
+        self.__url = self._add_limit_results()
         self.__data: gpd.GeoDataFrame
         self.__max_records: Optional[int] = max_records
         self._load()
+
+    def _add_limit_results(self, max_results: int = 500) -> str:
+        params = {"limit": max_results}
+        req = PreparedRequest()
+        req.prepare_url(self.url, params)
+        if req.url is None:
+            raise ValueError(f"The URL {self.url} is not valid")
+        return req.url
 
     def _load(self) -> None:
         pages: List[gpd.GeoDataFrame] = list()
