@@ -67,6 +67,17 @@ class MarsVisu(Mizar):
         )
         self.add_layer(wms)
 
+    def add_layer_wms(self, base_url, layer_name):
+        wms = WMSLayer(
+            name=layer_name,
+            format="png",
+            url=base_url,
+            layers=layer_name,
+            background=False,
+            transparent=True,
+        )
+        self.add_layer(wms)
+
 
 class EarthVisu(Mizar):
     def __init__(self):
@@ -77,6 +88,17 @@ class EarthVisu(Mizar):
             url="https://regards-pp.cnes.fr/api/v1/hysope/?map=/etc/mapserver/bluemarble.map",
             layers="BlueMarble",
             background=True,
+        )
+        self.add_layer(wms)
+
+    def add_layer_wms(self, base_url, layer_name):
+        wms = WMSLayer(
+            name=layer_name,
+            format="png",
+            url=base_url,
+            layers=layer_name,
+            background=False,
+            transparent=True,
         )
         self.add_layer(wms)
 
@@ -123,7 +145,18 @@ class Mars(IPlanet):
         newdf.hist(color, alpha, bins, figsize)
 
     def visu3D(self) -> MarsVisu:
-        return MarsVisu()
+        mars: MarsVisu = MarsVisu()
+        heatmap_url: Union[None, str] = self.data["heatmap"].iloc[0]
+        if heatmap_url is not None:
+            from urllib.parse import urlparse, parse_qs
+
+            url_parse = urlparse(heatmap_url)
+            base_url = (
+                f"{url_parse.scheme}://{url_parse.netloc}/{url_parse.path}"
+            )
+            layer_name = parse_qs(url_parse.query)["layers"][0]
+            mars.add_layer_wms(base_url, layer_name)
+        return mars
 
     def has_preview(self):
         pass
@@ -208,7 +241,18 @@ class Earth(IPlanet):
         newdf.hist(color, alpha, bins, figsize)
 
     def visu3D(self) -> EarthVisu:
-        return EarthVisu()
+        earth: EarthVisu = EarthVisu()
+        heatmap_url: Union[None, str] = self.data["heatmap"].iloc[0]
+        if heatmap_url is not None:
+            from urllib.parse import urlparse, parse_qs
+
+            url_parse = urlparse(heatmap_url)
+            base_url = (
+                f"{url_parse.scheme}://{url_parse.netloc}/{url_parse.path}"
+            )
+            layer_name = parse_qs(url_parse.query)["layers"][0]
+            earth.add_layer_wms(base_url, layer_name)
+        return earth
 
     def has_preview(self):
         pass

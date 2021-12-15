@@ -63,7 +63,7 @@ class StacItem:
 
     def _has_reach_max_records(self, current_nb_records: int) -> bool:
         if self.max_records is None:
-            return True
+            return False
         return current_nb_records >= self.max_records
 
     def _get_next_url(self, data_json) -> Union[None, str]:
@@ -72,7 +72,16 @@ class StacItem:
         for link in links:
             if link["rel"] == "next":
                 next_url = link["href"]
+                break
         return next_url
+
+    def _get_heatmap_url(self, data_json) -> Union[None, str]:
+        heatmap_url = None
+        links = data_json["links"]
+        for link in links:
+            if link["rel"] == "heatmap":
+                heatmap_url = link["href"]
+        return heatmap_url
 
     def _go_to_next_page(
         self,
@@ -98,6 +107,7 @@ class StacItem:
         gdf_tmp: gpd.GeoDataFrame = gpd.GeoDataFrame(data_json["features"])
         if "assets" in gdf_tmp.columns:
             gdf["assets"] = gdf_tmp["assets"]
+        gdf["heatmap"] = self._get_heatmap_url(data_json)
         nb_records: int = gdf.shape[0]
         new_nb_records: int = current_nb_records + nb_records
         pages.append(gdf)
